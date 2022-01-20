@@ -8,7 +8,13 @@ replace utils => ./utils
 
 replace models => ./app/models
 
-require config v0.0.0-00010101000000-000000000000
+replace controllers => ./app/controllers
+
+require (
+	config v0.0.0-00010101000000-000000000000 // indirect
+	controllers v0.0.0-00010101000000-000000000000
+	models v0.0.0-00010101000000-000000000000
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -17,6 +23,5 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	gopkg.in/go-ini/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
-	models v0.0.0-00010101000000-000000000000 // indirect
 	utils v0.0.0-00010101000000-000000000000 // indirect
 )
