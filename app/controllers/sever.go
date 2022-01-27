@@ -3,6 +3,7 @@ package controllers
 import (
 	"config"
 	"fmt"
+	"models"
 	"net/http"
 	"text/template"
 )
@@ -15,6 +16,18 @@ func generateHTML(w http.ResponseWriter, data interface{}, filenames ...string) 
 
 	templates := template.Must(template.ParseFiles(files...))
 	templates.ExecuteTemplate(w, "layout", data)
+}
+
+func session(w http.ResponseWriter, r *http.Request) (sess models.Session, err error) {
+	cookie, err := r.Cookie("_cookie")
+	if err != nil {
+		sess = models.Session{UUID: cookie.Value}
+		if ok, _ := sess.CheckSession(); !ok {
+			err = fmt.Errorf("Invalid session")
+		}
+	}
+	return sess, err
+
 }
 
 func StartMainServer() error {
