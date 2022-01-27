@@ -34,7 +34,13 @@ func signup(w http.ResponseWriter, r *http.Request) {
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
-	generateHTML(w, nil, "layout", "public_navbar", "login")
+	_, err := session(w, r)
+	if err != nil {
+		generateHTML(w, nil, "layout", "public_navbar", "login")
+	} else {
+		http.Redirect(w, r, "/todos", 302)
+	}
+
 }
 
 func authenticate(w http.ResponseWriter, r *http.Request) {
