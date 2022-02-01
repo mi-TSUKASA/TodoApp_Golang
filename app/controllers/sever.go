@@ -3,8 +3,11 @@ package controllers
 import (
 	"config"
 	"fmt"
+	"log"
 	"models"
 	"net/http"
+	"regexp"
+	"strconv"
 	"text/template"
 )
 
@@ -16,6 +19,24 @@ func generateHTML(w http.ResponseWriter, data interface{}, filenames ...string) 
 
 	templates := template.Must(template.ParseFiles(files...))
 	templates.ExecuteTemplate(w, "layout", data)
+}
+
+var validPath = regexp.MustCompile("^/todos/(edit|save|update|delete)/([0-9]+)$")
+
+func parseURL(fn func(http.ResponseWriter, *http.Request, int)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// /todos/edit/1
+		q := validPath.FindStringSubmatch(r.URL.Path)
+		if q == nil {
+			http.NotFound(w, r)
+			return
+		}
+		qi, err := strconv.Atoi(q[2])
+		if err != nil {
+			log.Fatalln(err)
+		}
+		fn(w, r, qi)
+	}
 }
 
 func session(w http.ResponseWriter, r *http.Request) (sess models.Session, err error) {
@@ -42,5 +63,7 @@ func StartMainServer() error {
 	http.HandleFunc("/todos", index)
 	http.HandleFunc("/todos/new", todoNew)
 	http.HandleFunc("/todos/save", todoSave)
+	http.HandleFunc("/todos/edit/", parseURL(todoEdit))
+	http.HandleFunc("/todos/update/", parseURL(todoUpdate))
 	return http.ListenAndServe(":"+config.Config.Port, nil)
 }
